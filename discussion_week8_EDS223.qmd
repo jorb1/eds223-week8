@@ -1,0 +1,42 @@
+---
+title: "Discussion Week 8"
+author: "BJ"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+library(sf)
+library(terra)
+library(tmap)
+library(dismo)
+```
+
+```{r}
+magpie <- read_csv(here::here("data", "magpie_obvs.csv"))
+tule_elk <- read_csv(here::here("data", "tule_elk_obvs.csv"))
+
+bioclim_dir <- here::here("data", "climate", "wc2.1_2.5m")
+bioclim <- list.files(bioclim_dir, pattern = glob2rx("*.tif$"), full.names = TRUE)
+bioclim_rast <- rast(bioclim)
+```
+
+```{r}
+# Name Raster Layers
+variables <- c("annualMeanTemp", "meanDiurnalRange", "isothermality", "tempSeasonality", "maxTempWarmMonth", "maxTempColdMonth", "tempAnnualRange", "meanTempWetQ", "meanTempDryQ", "meanTempWarmQ", "meanTempColdQ", "annualPrecip", "precipWetMonth", "precipDryMonth", "precipSeasonality", "precipWetQ", "precipDryQ", "precipWarmQ", "precipColdQ")
+names(bioclim_rast) <- variables
+```
+  
+```{r}
+# FIne Geographic Extent of Species Occurences
+magpie_sf <- magpie %>%
+  rename(long = longitude,
+         lat = latitude) %>%
+  drop_na(long, lat) %>%
+  st_as_sf(coords = c("long", "lat"), crs = 4326)
+
+# Obtain geographic extent/bounding box of the species occurrences
+magpie_bbox <- st_bbox(magpie_sf)
+```
+
